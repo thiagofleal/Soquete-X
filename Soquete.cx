@@ -1,0 +1,294 @@
+Classe: ErroSoquete
+{
+	Herdar: Erro;
+	
+	construtor(Texto: mensagem)
+	{
+		base(mensagem);
+	}
+	
+	mensagem()
+	{
+		retornar: "Erro de soquete\n" << base.mensagem();
+	}
+}
+
+Objeto: Soquete = novo Classe{
+	
+	Privado:
+		
+		Inteiro: TCP = 1;
+		Inteiro: UDP = 2;
+		Objeto: biblioteca;
+		Texto: maquinaLocal = "127.0.0.1";
+	
+	Publico:
+		
+		biblioteca()
+		{ retornar: este.biblioteca; }
+		
+		TCP()
+		{ retornar: este.TCP; }
+		
+		UDP()
+		{ retornar: este.UDP; }
+		
+		maquinaLocal()
+		{ retornar: este.maquinaLocal; }
+		
+		arquivo()
+		{ retornar: este.arquivo; }
+		
+		preparar()
+		{
+			este.biblioteca = funcionalidade_interna(
+				funcionalidadeInterna.abrirBibliotecaDinamica(),
+				"./DllSocket/dllsocket.dll"
+			);
+			
+			Logico: retorno = funcionalidade_interna(
+				funcionalidadeInterna.acessarFuncaoBibliotecaDinamica(),
+				este.biblioteca,
+				"IniciarSoquete"
+			);
+			
+			se(!retorno)
+			{
+				disparar: novo ErroSoquete("Erro ao preparar os soquetes");
+			}
+		}
+		
+		encerrar()
+		{
+			Logico: retorno = funcionalidade_interna(
+				funcionalidadeInterna.acessarFuncaoBibliotecaDinamica(),
+				este.biblioteca,
+				"EncerrarSoquete"
+			);
+			
+			funcionalidade_interna(
+				funcionalidadeInterna.fecharBibliotecaDinamica(),
+				este.biblioteca
+			);
+			
+			se(!retorno)
+			{
+				disparar: novo ErroSoquete("Erro ao preparar os soquetes");
+			}
+		}
+}();
+
+Classe: Soquete
+{
+	Privado:
+		
+		Logico: aberto = falso;
+		
+	Protegido:
+		
+		Objeto: soquete = Nulo;
+	
+	Publico:
+		
+		construtor(Inteiro: tipo, Texto: ip, Real: porta)
+		{
+			este.soquete = funcionalidade_interna(
+				funcionalidadeInterna.acessarFuncaoBibliotecaDinamica(),
+				Soquete.biblioteca(),
+				"NovoSoquete",
+				tipo,
+				ip,
+				porta
+			);
+		}
+		
+		destrutor()
+		{
+			se(este.aberto)
+			{
+				virtual.fechar();
+			}
+			
+			funcionalidade_interna(
+				funcionalidadeInterna.acessarFuncaoBibliotecaDinamica(),
+				Soquete.biblioteca(),
+				"DestruirSoquete",
+				este.soquete
+			);
+		}
+		
+		soquete()
+		{ retornar: este.soquete; }
+		
+		iniciar()
+		{
+			Logico: retorno = funcionalidade_interna(
+				funcionalidadeInterna.acessarFuncaoBibliotecaDinamica(),
+				Soquete.biblioteca(),
+				"Iniciar",
+				este.soquete
+			);
+			
+			este.aberto = verdadeiro;
+			
+			se(!retorno)
+			{
+				disparar: novo ErroSoquete("Erro ao iniciar soquete");
+			}
+		}
+		
+		aceitar(Objeto: soquete)
+		{
+			se(!este.aberto)
+			{
+				virtual.iniciar();
+			}
+			
+			Logico: retorno = funcionalidade_interna(
+				funcionalidadeInterna.acessarFuncaoBibliotecaDinamica(),
+				Soquete.biblioteca(),
+				"Aceitar",
+				este.soquete,
+				soquete.soquete()
+			);
+			
+			se(!retorno)
+			{
+				disparar: novo ErroSoquete("Erro ao aceitar soquete");
+			}
+		}
+		
+		conectar()
+		{
+			se(!este.aberto)
+			{
+				virtual.iniciar();
+			}
+			
+			Logico: retorno = funcionalidade_interna(
+				funcionalidadeInterna.acessarFuncaoBibliotecaDinamica(),
+				Soquete.biblioteca(),
+				"Conectar",
+				este.soquete
+			);
+			
+			se(!retorno)
+			{
+				disparar: novo ErroSoquete("Erro ao conectar soquete");
+			}
+		}
+		
+		vincular()
+		{
+			se(!este.aberto)
+			{
+				virtual.iniciar();
+			}
+			
+			Logico: retorno = funcionalidade_interna(
+				funcionalidadeInterna.acessarFuncaoBibliotecaDinamica(),
+				Soquete.biblioteca(),
+				"Vincular",
+				este.soquete
+			);
+			
+			se(!retorno)
+			{
+				disparar: novo ErroSoquete("Erro ao vincular soquete");
+			}
+		}
+		
+		ouvir()
+		{
+			se(!este.aberto)
+			{
+				virtual.iniciar();
+			}
+			
+			Logico: retorno = funcionalidade_interna(
+				funcionalidadeInterna.acessarFuncaoBibliotecaDinamica(),
+				Soquete.biblioteca(),
+				"Ouvir",
+				este.soquete
+			);
+			
+			se(!retorno)
+			{
+				disparar: novo ErroSoquete("Erro ao ouvir soquete");
+			}
+		}
+		
+		enviar(Texto: mensagem)
+		{
+			se(!este.aberto)
+			{
+				virtual.iniciar();
+			}
+			
+			Logico: retorno = funcionalidade_interna(
+				funcionalidadeInterna.acessarFuncaoBibliotecaDinamica(),
+				Soquete.biblioteca(),
+				"Enviar",
+				este.soquete,
+				mensagem
+			);
+			
+			se(!retorno)
+			{
+				disparar: novo ErroSoquete("Erro ao enviar via soquete");
+			}
+		}
+		
+		receber()
+		{
+			se(!este.aberto)
+			{
+				virtual.iniciar();
+			}
+			
+			Texto: retorno = funcionalidade_interna(
+				funcionalidadeInterna.acessarFuncaoBibliotecaDinamica(),
+				Soquete.biblioteca(),
+				"Receber",
+				este.soquete
+			);
+			
+			se(retorno == "")
+			{
+				disparar: novo ErroSoquete("Erro ao receber via soquete");
+			}
+			
+			retornar: retorno;
+		}
+		
+		fechar()
+		{
+			Logico: retorno = funcionalidade_interna(
+				funcionalidadeInterna.acessarFuncaoBibliotecaDinamica(),
+				Soquete.biblioteca(),
+				"Fechar",
+				este.soquete
+			);
+			
+			se(!retorno)
+			{
+				disparar: novo ErroSoquete("Erro ao fechar soquete");
+			}
+			
+			este.aberto = falso;
+		}
+}
+
+Classe: SoqueteVazio
+{
+	Herdar: Soquete;
+	
+	construtor()
+	{
+		este.soquete = funcionalidade_interna(
+			funcionalidadeInterna.acessarFuncaoBibliotecaDinamica(),
+			Soquete.biblioteca(),
+			"NovoSoquete"
+		);
+	}
+}
